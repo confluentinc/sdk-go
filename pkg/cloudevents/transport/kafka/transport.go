@@ -148,19 +148,19 @@ func (t *Transport) createTopicIfNotExists(ctx context.Context) error {
 }
 
 // Send implements Transport.Send
-func (t *Transport) Send(ctx context.Context, event cloudevents.Event) (*cloudevents.Event, error) {
+func (t *Transport) Send(ctx context.Context, event cloudevents.Event) (context.Context, *cloudevents.Event, error) {
 	if ok := t.loadCodec(ctx); !ok {
-		return nil, fmt.Errorf("unknown encoding set on transport: %d", t.Encoding)
+		return ctx, nil, fmt.Errorf("unknown encoding set on transport: %d", t.Encoding)
 	}
 
 	msg, err := t.codec.Encode(ctx, event)
 	if err != nil {
-		return nil, err
+		return ctx, nil, err
 	}
 
 	err = t.createTopicIfNotExists(ctx)
 	if err != nil {
-		return nil, err
+		return ctx, nil, err
 	}
 
 	if m, ok := msg.(*Message); ok {
@@ -172,12 +172,12 @@ func (t *Transport) Send(ctx context.Context, event cloudevents.Event) (*cloudev
 		}, nil)
 
 		if err != nil {
-			return nil, err
+			return ctx, nil, err
 		}
-		return &event, nil
+		return ctx, &event, nil
 	}
 
-	return nil, fmt.Errorf("failed to encode Event into a Message")
+	return ctx, nil, fmt.Errorf("failed to encode Event into a Message")
 }
 
 // SetReceiver implements Transport.SetReceiver
