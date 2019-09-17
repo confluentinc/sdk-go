@@ -146,7 +146,7 @@ func TestSendCloudEventRoundTrip(t *testing.T) {
 	event.SetType("com.cloudevents.sample.sent")
 	event.SetSource("github.com/cloudevents/sdk-go/cmd/samples/kafka/sender/")
 	_ = event.SetData(sample)
-	sentEvent, err := c.Send(context.Background(), event)
+	_, sentEvent, err := c.Send(context.Background(), event)
 	fmt.Printf("sentEvent: %+v\n", sentEvent)
 
 	if err != nil {
